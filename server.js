@@ -1,10 +1,16 @@
 const express = require("express");
 const articlesRouter = require("./routes/articles");
+const mongoose = require("mongoose");
 const app = express();
 
-app.set("view engine", "ejs");
+mongoose.connect("mongodb://localhost/blog", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true
+});
 
-app.use("/articles", articlesRouter);
+app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res) => {
   const articles = [
@@ -29,7 +35,7 @@ app.get("/", (req, res) => {
       description: "Test Description 4"
     }
   ];
-  res.render("index", { articles });
+  res.render("articles/index", { articles });
 });
-
+app.use("/articles", articlesRouter);
 app.listen(5000);
