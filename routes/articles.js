@@ -5,8 +5,10 @@ router.get("/new", (req, res) => {
   res.render("articles/new", { article: new Article() });
 });
 
-router.get("/:id", (req, res) => {
-  res.send(req.params.id);
+router.get("/:slug", async (req, res) => {
+  const article = await Article.findOne({ slug: req.params.slug });
+  if (article == null) res.redirect("/");
+  res.render("articles/show", { article });
 });
 
 router.post("/", async (req, res) => {
@@ -16,13 +18,16 @@ router.post("/", async (req, res) => {
     markdown: req.body.markdown
   });
   try {
-    console.log("TRY", article);
-    article = await article.save(); // CHECK WHY IT4S NOT SAVING
-    res.redirect(`/articles/${article._id}`);
+    article = await article.save();
+    res.redirect(`/articles/${article.slug}`);
   } catch (error) {
     console.log("ERROR", error);
     res.render("articles/new", { article });
   }
+});
+router.delete("/:id", async (req, res) => {
+  await Article.findByIdAndDelete(req.params.id);
+  res.redirect("/");
 });
 
 module.exports = router;

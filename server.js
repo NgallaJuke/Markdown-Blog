@@ -1,6 +1,8 @@
 const express = require("express");
 const articlesRouter = require("./routes/articles");
 const mongoose = require("mongoose");
+const Article = require("./models/article");
+const methodOverride = require("method-override"); //allow to use Delete methods on Form
 const app = express();
 
 mongoose.connect("mongodb://localhost/blog", {
@@ -10,31 +12,12 @@ mongoose.connect("mongodb://localhost/blog", {
 });
 
 app.set("view engine", "ejs");
-app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => {
-  const articles = [
-    {
-      title: "Article 1",
-      createdAt: new Date(),
-      description: "Test Description 1"
-    },
-    {
-      title: "Article 2",
-      createdAt: new Date(),
-      description: "Test Description 2"
-    },
-    {
-      title: "Article 3",
-      createdAt: new Date(),
-      description: "Test Description 3"
-    },
-    {
-      title: "Article 4",
-      createdAt: new Date(),
-      description: "Test Description 4"
-    }
-  ];
+app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride("_method"));
+
+app.get("/", async (req, res) => {
+  const articles = await Article.find().sort({ createdAt: "desc" });
   res.render("articles/index", { articles });
 });
 app.use("/articles", articlesRouter);
