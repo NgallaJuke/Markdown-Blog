@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const marked = require("marked"); //allows to create markdown and turn it into HTML
 const slugify = require("slugify"); // allows to converte our title into URL slug
+const createDomPurify = require("dompurify");
+const { JSDOM } = require("jsdom");
+const dompurify = createDomPurify(new JSDOM().window);
 
 const articleSchema = new mongoose.Schema({
   title: {
@@ -22,12 +25,19 @@ const articleSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true
+  },
+  sanitizedHtml: {
+    type: String,
+    required: true
   }
 });
 
 articleSchema.pre("validate", function(next) {
   if (this.title) {
     this.slug = slugify(this.title, { mower: true, strict: true });
+  }
+  if (this.markdown) {
+    this.sanitizedHtml = dompurify.sanitize(marked(this.markdown));
   }
   next();
 });
