@@ -13,7 +13,7 @@ mongoose.connect("mongodb://localhost/blog", {
 
 app.set("view engine", "ejs");
 
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false }));//Use BodyPArser
 app.use(methodOverride("_method"));
 
 app.get("/", async (req, res) => {
